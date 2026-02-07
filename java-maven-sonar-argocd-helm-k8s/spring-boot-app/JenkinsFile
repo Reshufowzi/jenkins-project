@@ -14,11 +14,15 @@ pipeline {
       }
     }
 
-    stage('Build and Test') {
+    stage('Build and Test (Maven Container)') {
+      agent {
+        docker {
+          image 'maven:3.9.9-eclipse-temurin-17'
+          args '-v /root/.m2:/root/.m2'
+        }
+      }
       steps {
         sh '''
-          java -version
-          mvn -version
           cd java-maven-sonar-argocd-helm-k8s/spring-boot-app
           mvn clean package
         '''
@@ -26,6 +30,12 @@ pipeline {
     }
 
     stage('SonarQube Analysis') {
+      agent {
+        docker {
+          image 'maven:3.9.9-eclipse-temurin-17'
+          args '-v /root/.m2:/root/.m2'
+        }
+      }
       steps {
         withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_TOKEN')]) {
           sh '''
@@ -76,12 +86,12 @@ pipeline {
               spring-boot-app-manifests/deployment.yml
 
             git add spring-boot-app-manifests/deployment.yml
-            git commit -m "Update image tag to ${BUILD_NUMBER}" || echo "No changes to commit"
+            git commit -m "Update image tag to ${BUILD_NUMBER}" || echo "No changes"
             git push https://${GITHUB_TOKEN}@github.com/Reshufowzi/jenkins-project.git HEAD:main
           '''
         }
       }
     }
 
-  } // end stages
-} // end pipeline
+  }
+}
