@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    SONAR_URL   = "http://3.80.94.89:9000"
+    SONAR_URL   = "http://98.85.168.234:9000"
     DOCKER_REPO = "syedgayasudheen/ultimate-cicd"
   }
 
