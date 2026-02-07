@@ -85,4 +85,14 @@ pipeline {
             git config user.name "Reshma"
 
             sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" \
-              java-maven-sonar-
+              java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+
+            git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+            git commit -m "Update image tag to ${BUILD_NUMBER}"
+            git push https://${GITHUB_TOKEN}@github.com/Reshufowzi/jenkins-project.git HEAD:main
+          '''
+        }
+      }
+    }
+  }
+}
