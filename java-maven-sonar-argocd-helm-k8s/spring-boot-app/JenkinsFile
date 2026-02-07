@@ -1,14 +1,14 @@
 pipeline {
-  agent {
-    docker {
-      image 'maven:3.9.9-eclipse-temurin-17'
-      args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
-    }
-  }
+  agent any
 
   environment {
     SONAR_URL   = "http://3.80.94.89:9000"
     DOCKER_REPO = "syedgayasudheen/ultimate-cicd"
+  }
+
+  tools {
+    maven 'maven-3.9'
+    jdk 'jdk17'
   }
 
   stages {
@@ -79,7 +79,7 @@ pipeline {
               spring-boot-app-manifests/deployment.yml
 
             git add spring-boot-app-manifests/deployment.yml
-            git commit -m "Update image tag to ${BUILD_NUMBER}" || echo "No changes to commit"
+            git commit -m "Update image tag to ${BUILD_NUMBER}" || echo "No changes"
             git push https://${GITHUB_TOKEN}@github.com/Reshufowzi/jenkins-project.git HEAD:main
           '''
         }
