@@ -6,11 +6,6 @@ pipeline {
     DOCKER_REPO = "syedgayasudheen/ultimate-cicd"
   }
 
-  tools {
-    maven 'maven-3.9'
-    jdk 'jdk17'
-  }
-
   stages {
 
     stage('Checkout') {
@@ -22,6 +17,8 @@ pipeline {
     stage('Build and Test') {
       steps {
         sh '''
+          java -version
+          mvn -version
           cd java-maven-sonar-argocd-helm-k8s/spring-boot-app
           mvn clean package
         '''
@@ -66,24 +63,4 @@ pipeline {
       }
     }
 
-    stage('Update Deployment File (GitOps)') {
-      steps {
-        withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-          sh '''
-            cd java-maven-sonar-argocd-helm-k8s
-
-            git config user.email "armaanarmaan28237@gmail.com"
-            git config user.name "Reshma"
-
-            sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" \
-              spring-boot-app-manifests/deployment.yml
-
-            git add spring-boot-app-manifests/deployment.yml
-            git commit -m "Update image tag to ${BUILD_NUMBER}" || echo "No changes"
-            git push https://${GITHUB_TOKEN}@github.com/Reshufowzi/jenkins-project.git HEAD:main
-          '''
-        }
-      }
-    }
-  }
-}
+    stage('Update Deployment File (GitOps)')
