@@ -1,7 +1,7 @@
 pipeline {
   agent {
     docker {
-      image 'docker:24-cli'
+      image 'maven:3.9.9-eclipse-temurin-17'
       args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
     }
   }
@@ -12,17 +12,6 @@ pipeline {
   }
 
   stages {
-
-    stage('Install Tools') {
-      steps {
-        sh '''
-          apk add --no-cache maven openjdk17 git
-          java -version
-          mvn -version
-          docker --version
-        '''
-      }
-    }
 
     stage('Checkout') {
       steps {
@@ -81,14 +70,16 @@ pipeline {
       steps {
         withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
           sh '''
+            cd java-maven-sonar-argocd-helm-k8s
+
             git config user.email "armaanarmaan28237@gmail.com"
             git config user.name "Reshma"
 
             sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" \
-              java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+              spring-boot-app-manifests/deployment.yml
 
-            git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
-            git commit -m "Update image tag to ${BUILD_NUMBER}"
+            git add spring-boot-app-manifests/deployment.yml
+            git commit -m "Update image tag to ${BUILD_NUMBER}" || echo "No changes to commit"
             git push https://${GITHUB_TOKEN}@github.com/Reshufowzi/jenkins-project.git HEAD:main
           '''
         }
